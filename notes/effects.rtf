@@ -1,0 +1,160 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.19041}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs28\lang9 Hello, React fans! In this blog post, I'm going to talk about effects and side effects in React JS, and how they are handled by the framework. If you are new to React, or you want to refresh your knowledge, this post is for you!\par
+\par
+What are effects and side effects?\par
+\par
+Effects are anything that happens as a result of rendering a component. For example, fetching data from an API, updating the document title, subscribing to an event, or setting a timer are all effects. Side effects are effects that affect something outside the component, such as the browser, the server, or other components. Side effects can cause unexpected behavior or errors if they are not managed properly.\par
+\par
+How does React handle effects and side effects?\par
+\par
+React provides a built-in hook called useEffect to handle effects and side effects. The useEffect hook takes two arguments: a function that performs the effect, and an optional array of dependencies that tells React when to run the effect. The useEffect hook runs after every render by default, unless you specify the dependencies. You can also return a cleanup function from the effect function to cancel or undo the effect when the component unmounts or re-renders.\par
+\par
+Let's see an example of using useEffect to fetch data from an API and display it in a component:\par
+jsx\par
+import React, \{ useState, useEffect \} from 'react';\par
+\par
+function Posts() \{\par
+// Declare a state variable to store the posts\par
+const [posts, setPosts] = useState([]);\par
+\par
+// Declare a useEffect hook to fetch data from an API\par
+useEffect(() => \{\par
+// Define a function to fetch data\par
+async function fetchData() \{\par
+// Use the fetch API to get the posts\par
+const response = await fetch('https://jsonplaceholder.typicode.com/posts');\par
+// Convert the response to JSON\par
+const data = await response.json();\par
+// Update the state with the data\par
+setPosts(data);\par
+\}\par
+\par
+// Call the function\par
+fetchData();\par
+\}, []); // Pass an empty array as dependencies to run the effect only once\par
+\par
+// Return a JSX element to display the posts\par
+return (\par
+<div className="posts">\par
+<h1>Posts</h1>\par
+<ul>\par
+\{posts.map((post) => (\par
+<li key=\{post.id\}>\par
+<h2>\{post.title\}</h2>\par
+<p>\{post.body\}</p>\par
+</li>\par
+))\}\par
+</ul>\par
+</div>\par
+);\par
+\}\par
+\par
+export default Posts;\par
+```\par
+\par
+In this example, we use useState to declare a state variable called posts, and a setter function called setPosts. We use useEffect to declare a function that fetches data from an API using the fetch API, and updates the state with the data using setPosts. We pass an empty array as dependencies to useEffect, which means that the effect will run only once after the initial render. We also use map to iterate over the posts array and render each post as a list item.\par
+\par
+Why do we need to pass dependencies to useEffect?\par
+\par
+The dependencies array tells React when to run the effect. If you don't pass any dependencies, React will run the effect after every render, which can cause performance issues or infinite loops. If you pass an empty array, React will run the effect only once after the initial render, which is useful for one-time effects like fetching data or setting up subscriptions. If you pass some variables as dependencies, React will run the effect only when those variables change, which is useful for updating the effect based on some props or state.\par
+\par
+For example, let's say we want to update the document title with the number of posts we have:\par
+\par
+```jsx\par
+import React, \{ useState, useEffect \} from 'react';\par
+\par
+function Posts() \{\par
+// Declare a state variable to store the posts\par
+const [posts, setPosts] = useState([]);\par
+\par
+// Declare a useEffect hook to fetch data from an API\par
+useEffect(() => \{\par
+// Define a function to fetch data\par
+async function fetchData() \{\par
+// Use the fetch API to get the posts\par
+const response = await fetch('https://jsonplaceholder.typicode.com/posts');\par
+// Convert the response to JSON\par
+const data = await response.json();\par
+// Update the state with the data\par
+setPosts(data);\par
+\}\par
+\par
+// Call the function\par
+fetchData();\par
+\}, []); // Pass an empty array as dependencies to run the effect only once\par
+\par
+// Declare another useEffect hook to update the document title\par
+useEffect(() => \{\par
+// Update the document title with the number of posts\par
+document.title = `You have $\{posts.length\} posts`;\par
+\}, [posts]); // Pass posts as dependency to run the effect only when posts changes\par
+\par
+// Return a JSX element to display the posts\par
+return (\par
+<div className="posts">\par
+<h1>Posts</h1>\par
+<ul>\par
+\{posts.map((post) => (\par
+<li key=\{post.id\}>\par
+<h2>\{post.title\}</h2>\par
+<p>\{post.body\}</p>\par
+</li>\par
+))\}\par
+</ul>\par
+</div>\par
+);\par
+\}\par
+\par
+export default Posts;\par
+```\par
+\par
+In this example, we use another useEffect hook to update the document title with the number of posts we have. We pass posts as a dependency to useEffect, which means that the effect will run only when posts changes. This way, we can keep the document title in sync with the state.\par
+\par
+How do we clean up effects and side effects?\par
+\par
+Some effects and side effects may need to be cleaned up or canceled when the component unmounts or re-renders. For example, if we set up a subscription to an event or a timer, we may need to unsubscribe or clear the timer when we don't need it anymore. To do this, we can return a cleanup function from the effect function, and React will call it before running the next effect or unmounting the component.\par
+\par
+For example, let's say we want to set up a timer that logs a message every second:\par
+\par
+```jsx\par
+import React, \{ useEffect \} from 'react';\par
+\par
+function Timer() \{\par
+// Declare a useEffect hook to set up a timer\par
+useEffect(() => \{\par
+// Define a function to log a message\par
+function logMessage() \{\par
+console.log('Hello, world!');\par
+\}\par
+\par
+// Set up a timer that calls the function every second\par
+const timerId = setInterval(logMessage, 1000);\par
+\par
+// Return a cleanup function that clears the timer\par
+return () => \{\par
+clearInterval(timerId);\par
+\};\par
+\}, []); // Pass an empty array as dependencies to run the effect only once\par
+\par
+// Return a JSX element to display the timer\par
+return (\par
+<div className="timer">\par
+<h1>Timer</h1>\par
+<p>Check the console for messages</p>\par
+</div>\par
+);\par
+\}\par
+\par
+export default Timer;\par
+```\par
+\par
+In this example, we use useEffect to declare a function that logs a message to the console, and set up a timer that calls the function every second using setInterval. We return a cleanup function that clears the timer using clearInterval. We pass an empty array as dependencies to useEffect, which means that the effect will run only once after the initial render. When the component unmounts, React will call the cleanup function and clear the timer.\par
+\par
+Conclusion\par
+\par
+Effects and side effects are an important part of React components, and they can be handled by using the useEffect hook. The useEffect hook allows us to perform effects and side effects after every render, or only when some dependencies change. The useEffect hook also allows us to return a cleanup function to cancel or undo the effects when the component unmounts or re-renders. By using useEffect correctly, we can make our components more dynamic and interactive.\par
+\par
+I hope you enjoyed this blog post and learned something new about React JS. If you have any questions or feedback, please leave a comment below. Happy coding!\par
+}
+ 
